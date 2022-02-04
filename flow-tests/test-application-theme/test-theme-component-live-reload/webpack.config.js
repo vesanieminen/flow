@@ -15,6 +15,9 @@ const flowDefaults = require('./webpack.generated.js');
  */
 module.exports = merge(flowDefaults,
     {
+        stats: {
+            logging: 'verbose'
+        },
         infrastructureLogging: {
             level: 'verbose'
         }
