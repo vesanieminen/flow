@@ -41,6 +41,9 @@ class ThemeLiveReloadPlugin {
     this.componentStyleFileRegexp = /(\\|\/)themes\1([\s\S]*)\1components\1(.*)\.css$/;
     // There might be several theme generated files in the generated
     // folder, so the regexp does not contain the exact theme name
+    // TODO: MCK verify this regex
+    // it matches also "/opt/agent/work/e28f823e5fc2ceb8/flow-tests/test-application-theme/test-theme-component-live-reload/frontend/generated/pippo.generated.js"
+    // but should not
     this.themeGeneratedFileRegexp = /theme-[\s\S]*?\.generated\.js$/;
   }
 
@@ -76,6 +79,7 @@ class ThemeLiveReloadPlugin {
               deletedComponentStyleFile = file;
             }
           }
+          logger.info('===> MCK ==> Eval ' + file + ' ==> timestamp: ' + timestamp);
           logger.info('===> MCK ==> Eval ' + file + ' ==> fileRemoved: ' + fileRemoved);
           logger.info('===> MCK ==> Eval ' + file + ' ==>  themeGeneratedFileChangedNow: ' + themeGeneratedFileChangedNow);
           logger.info('===> MCK ==> Eval ' + file + ' ==>  themeGeneratedFileChanged: ' + themeGeneratedFileChanged);
