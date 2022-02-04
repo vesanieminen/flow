@@ -142,6 +142,15 @@ public class ComponentThemeLiveReloadIT extends ChromeBrowserTest {
                         parentThemeComponentCSSFile));
         waitUntilComponentCustomStyle(PARENT_BORDER_RADIUS);
 
+        // Try to wait a bit before deleting parent component
+        // because sometimes a change in app generated theme is detected
+        // together with parent component file removal
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            // do nothing
+        }
+
         // Live reload upon parent theme file deletion
         doActionAndWaitUntilLiveReloadComplete(
                 this::deleteParentThemeComponentStyles);
