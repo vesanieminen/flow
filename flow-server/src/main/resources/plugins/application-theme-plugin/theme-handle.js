@@ -169,7 +169,9 @@ function handleThemes(themeName, themesFolder, options, logger) {
     copyThemeResources(themeFolder, options.projectStaticAssetsOutputFolder, logger);
     const themeFile = generateThemeFile(themeFolder, themeName, themeProperties, !options.devMode);
 
+    logger.log('About to write theme theme-' + themeName + '.generated.js');
     fs.writeFileSync(path.resolve(options.frontendGeneratedFolder, 'theme-' + themeName + '.generated.js'), themeFile);
+    logger.log('Theme theme-' + themeName + '.generated.js written');
     return true;
   }
   return false;

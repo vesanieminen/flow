@@ -16,11 +16,20 @@ const flowDefaults = require('./webpack.generated.js');
 module.exports = merge(flowDefaults,
     {
         stats: {
-            logging: 'verbose'
+            logging: 'info',
+            loggingDebug: [
+                'ThemeLiveReloadPlugin',
+                '/ThemeLiveReloadPlugin/'
+            ]
         },
         infrastructureLogging: {
-            level: 'verbose'
-        }
+            level: 'info',
+            debug: [
+                '/.*Plugin.*/',
+                'ThemeLiveReloadPlugin'
+            ]
+        },
+
     }
   // Override default configuration
   // {

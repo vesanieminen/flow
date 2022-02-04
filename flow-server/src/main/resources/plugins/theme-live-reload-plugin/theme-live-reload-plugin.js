@@ -56,6 +56,7 @@ class ThemeLiveReloadPlugin {
         let deletedComponentStyleFile = undefined;
         const changedFilesPaths = Object.keys(changedFilesMap);
         logger.debug('Detected changes in the following files ' + changedFilesPaths);
+        logger.info('===> MCK ==> Detected changes in the following files ' + changedFilesPaths);
         changedFilesPaths.forEach((changedFilePath) => {
           const file = `${changedFilePath}`;
           const themeGeneratedFileChangedNow = file.match(this.themeGeneratedFileRegexp);
@@ -75,6 +76,12 @@ class ThemeLiveReloadPlugin {
               deletedComponentStyleFile = file;
             }
           }
+          logger.info('===> MCK ==> Eval ' + file + ' ==> fileRemoved: ' + fileRemoved);
+          logger.info('===> MCK ==> Eval ' + file + ' ==>  themeGeneratedFileChangedNow: ' + themeGeneratedFileChangedNow);
+          logger.info('===> MCK ==> Eval ' + file + ' ==>  themeGeneratedFileChanged: ' + themeGeneratedFileChanged);
+          logger.info('===> MCK ==> Eval ' + file + ' ==>  themeGeneratedFileDeleted: ' + themeGeneratedFileDeleted);
+          logger.info('===> MCK ==> Eval ' + file + ' ==> themeName: ' + themeName);
+          logger.info('===> MCK ==> Eval ' + file + ' ==> deletedComponentStyleFile: ' + deletedComponentStyleFile);
         });
         // This is considered as a workaround for
         // https://github.com/vaadin/flow/issues/9948: delete component
@@ -103,6 +110,7 @@ class ThemeLiveReloadPlugin {
         // should not trigger the theme handling callback (which
         // re-generates theme-[my-theme].generated.js),
         // otherwise it will get into infinite re-compilation loop.
+        logger.info('===> MCK ==> Trigger processThemeResourcesCallback? ' + (themeGeneratedFileDeleted || !themeGeneratedFileChanged))
         if (themeGeneratedFileDeleted || !themeGeneratedFileChanged) {
           this.processThemeResourcesCallback(logger);
         }
