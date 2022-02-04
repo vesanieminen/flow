@@ -19,19 +19,23 @@ package com.vaadin.flow.uitest.ui;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import net.jcip.annotations.NotThreadSafe;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 
 import com.vaadin.flow.component.html.testbench.DivElement;
@@ -266,9 +270,22 @@ public class ComponentThemeLiveReloadIT extends ChromeBrowserTest {
         }
     }
 
+    private long lastSeenLogEntry = 0L;
+
     private void checkNoWebpackErrors(String theme) {
-        getLogEntries(java.util.logging.Level.ALL).forEach(logEntry -> {
-            System.out.printf("============== [%d] Webpack error: %s", logEntry.getTimestamp(), logEntry.getMessage());
+        Map<Boolean, List<LogEntry>> logEntryMap = getLogEntries(java.util.logging.Level.ALL).stream()
+                .collect(Collectors.partitioningBy(le -> le.getTimestamp() > lastSeenLogEntry));
+
+        // print old log entries
+        logEntryMap.getOrDefault(false, Collections.emptyList())
+                .forEach(le -> System.out.printf("============== OLD LOG ENTRY: %d -> %s ", le.getTimestamp(), le.getMessage()));
+
+        List<LogEntry> logEntries = logEntryMap.getOrDefault(true, Collections.emptyList());
+        lastSeenLogEntry = logEntries.stream()
+                .mapToLong(LogEntry::getTimestamp)
+                .max().orElse(0);
+        logEntries.forEach(logEntry -> {
+            System.out.printf("============== NEW LOG ENTRIES [%d] Webpack error: %s%n", logEntry.getTimestamp(), logEntry.getMessage());
             if (logEntry.getMessage().contains("Module build failed")) {
                 Assert.fail(String.format(
                         "Webpack error detected in the browser console after "
