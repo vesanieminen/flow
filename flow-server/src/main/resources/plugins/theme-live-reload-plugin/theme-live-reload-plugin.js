@@ -60,6 +60,7 @@ class ThemeLiveReloadPlugin {
         const changedFilesPaths = Object.keys(changedFilesMap);
         logger.debug('Detected changes in the following files ' + changedFilesPaths);
         logger.info('===> MCK ==> Detected changes in the following files ' + changedFilesPaths);
+        logger.info('===> MCK ==> compiler.watchFileSystem.watcher.mtimes ' + changedFilesMap);
         changedFilesPaths.forEach((changedFilePath) => {
           const file = `${changedFilePath}`;
           const themeGeneratedFileChangedNow = file.match(this.themeGeneratedFileRegexp);
