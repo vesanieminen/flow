@@ -29,6 +29,9 @@ module.exports = merge(flowDefaults,
                 'ThemeLiveReloadPlugin'
             ]
         },
+        watchOptions: {
+            aggregateTimeout: 5 
+        }
 
     }
   // Override default configuration

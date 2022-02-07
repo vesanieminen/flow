@@ -19,7 +19,6 @@ package com.vaadin.flow.uitest.ui;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import net.jcip.annotations.NotThreadSafe;
 import org.apache.commons.io.FileUtils;
@@ -32,7 +31,6 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 
 import com.vaadin.flow.component.html.testbench.DivElement;
@@ -179,15 +177,6 @@ public class ComponentThemeLiveReloadIT extends ChromeBrowserTest {
                     () -> createOrUpdateComponentCSSFile(PARENT_BORDER_RADIUS,
                             parentThemeComponentCSSFile));
             waitUntilComponentCustomStyle(PARENT_BORDER_RADIUS);
-
-            // Try to wait a bit before deleting parent component
-            // because sometimes a change in app generated theme is detected
-            // together with parent component file removal
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                // do nothing
-            }
 
             // Live reload upon parent theme file deletion
             doActionAndWaitUntilLiveReloadComplete(
