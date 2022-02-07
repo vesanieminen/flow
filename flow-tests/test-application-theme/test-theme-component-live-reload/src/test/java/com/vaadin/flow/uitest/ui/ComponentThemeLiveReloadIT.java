@@ -136,66 +136,70 @@ public class ComponentThemeLiveReloadIT extends ChromeBrowserTest {
 
     @Test
     public void webpackLiveReload_newComponentStylesCreatedAndDeleted_stylesUpdatedOnFly() {
-        open();
-
-        /*
-         * Access client logs in order to clear them to avoid false positive
-         * on flaky tests, due to checks on entries from a previous run
-         */
-        getLogEntries(java.util.logging.Level.ALL);
-
-        Assert.assertFalse(
-                "Border radius for themed component is not expected before "
-                        + "applying the styles",
-                isComponentCustomStyle(BORDER_RADIUS)
-                        || isComponentCustomStyle(OTHER_BORDER_RADIUS));
-
-        // Test current theme live reload:
-
-        // Live reload upon adding a new component styles file
-        doActionAndWaitUntilLiveReloadComplete(
-                () -> createOrUpdateComponentCSSFile(BORDER_RADIUS,
-                        currentThemeComponentCSSFile));
-        waitUntilComponentCustomStyle(BORDER_RADIUS);
-
-        // Live reload upon updating component styles file
-        doActionAndWaitUntilLiveReloadComplete(
-                () -> createOrUpdateComponentCSSFile(OTHER_BORDER_RADIUS,
-                        currentThemeComponentCSSFile));
-        waitUntilComponentCustomStyle(OTHER_BORDER_RADIUS);
-
-        // Live reload upon file deletion
-        doActionAndWaitUntilLiveReloadComplete(
-                this::deleteCurrentThemeComponentStyles);
-        waitUntilComponentInitialStyle(
-                "Wait for current theme component initial styles timeout");
-        checkNoWebpackErrors(CURRENT_THEME);
-
-        // Test parent theme live reload:
-
-        // Live reload upon adding a new component styles file to parent theme
-        doActionAndWaitUntilLiveReloadComplete(
-                () -> createOrUpdateComponentCSSFile(PARENT_BORDER_RADIUS,
-                        parentThemeComponentCSSFile));
-        waitUntilComponentCustomStyle(PARENT_BORDER_RADIUS);
-
-        // Try to wait a bit before deleting parent component
-        // because sometimes a change in app generated theme is detected
-        // together with parent component file removal
-        /*
         try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            // do nothing
-        }
-         */
+            open();
 
-        // Live reload upon parent theme file deletion
-        doActionAndWaitUntilLiveReloadComplete(
-                this::deleteParentThemeComponentStyles);
-        waitUntilComponentInitialStyle(
-                "Wait for parent theme component initial styles timeout");
-        checkNoWebpackErrors(PARENT_THEME);
+            /*
+             * Access client logs in order to clear them to avoid false positive
+             * on flaky tests, due to checks on entries from a previous run
+             */
+            printLogEntries("run " + counter);
+
+            Assert.assertFalse(
+                    "Border radius for themed component is not expected before "
+                            + "applying the styles",
+                    isComponentCustomStyle(BORDER_RADIUS)
+                            || isComponentCustomStyle(OTHER_BORDER_RADIUS));
+
+            // Test current theme live reload:
+
+            // Live reload upon adding a new component styles file
+            doActionAndWaitUntilLiveReloadComplete(
+                    () -> createOrUpdateComponentCSSFile(BORDER_RADIUS,
+                            currentThemeComponentCSSFile));
+            waitUntilComponentCustomStyle(BORDER_RADIUS);
+
+            // Live reload upon updating component styles file
+            doActionAndWaitUntilLiveReloadComplete(
+                    () -> createOrUpdateComponentCSSFile(OTHER_BORDER_RADIUS,
+                            currentThemeComponentCSSFile));
+            waitUntilComponentCustomStyle(OTHER_BORDER_RADIUS);
+
+            // Live reload upon file deletion
+            doActionAndWaitUntilLiveReloadComplete(
+                    this::deleteCurrentThemeComponentStyles);
+            waitUntilComponentInitialStyle(
+                    "Wait for current theme component initial styles timeout");
+            checkNoWebpackErrors(CURRENT_THEME);
+
+            // Test parent theme live reload:
+
+            // Live reload upon adding a new component styles file to parent theme
+            doActionAndWaitUntilLiveReloadComplete(
+                    () -> createOrUpdateComponentCSSFile(PARENT_BORDER_RADIUS,
+                            parentThemeComponentCSSFile));
+            waitUntilComponentCustomStyle(PARENT_BORDER_RADIUS);
+
+            // Try to wait a bit before deleting parent component
+            // because sometimes a change in app generated theme is detected
+            // together with parent component file removal
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                // do nothing
+            }
+
+            // Live reload upon parent theme file deletion
+            doActionAndWaitUntilLiveReloadComplete(
+                    this::deleteParentThemeComponentStyles);
+            waitUntilComponentInitialStyle(
+                    "Wait for parent theme component initial styles timeout");
+            checkNoWebpackErrors(PARENT_THEME);
+        } catch (AssertionError aE) {
+            System.out.println("================================== Error on test!! ");
+            aE.printStackTrace();
+            throw aE;
+        }
     }
 
     private void waitUntilComponentInitialStyle(String errMessage) {
