@@ -197,7 +197,7 @@ public class ComponentThemeLiveReloadIT extends ChromeBrowserTest {
             checkNoWebpackErrors(PARENT_THEME);
         } catch (AssertionError aE) {
             System.out.println("================================== Error on test!! ");
-            aE.printStackTrace();
+            aE.printStackTrace(System.out);
             throw aE;
         }
     }
