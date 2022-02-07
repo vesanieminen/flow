@@ -98,6 +98,7 @@ public class DevServerOutputTracker {
             // Webpack often prepends with <i>
             logLine = logLine.replaceAll("^<i> ", "");
             getLogger().info(logLine);
+            System.out.println("===================== [webpack stdout] :: " + logLine);
 
             boolean succeed = success != null && success.matcher(line).find();
             boolean failed = failure != null && failure.matcher(line).find();

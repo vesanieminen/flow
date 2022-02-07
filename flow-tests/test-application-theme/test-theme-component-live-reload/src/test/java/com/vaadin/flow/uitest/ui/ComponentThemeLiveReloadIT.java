@@ -19,10 +19,7 @@ package com.vaadin.flow.uitest.ui;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import net.jcip.annotations.NotThreadSafe;
 import org.apache.commons.io.FileUtils;
@@ -83,10 +80,14 @@ public class ComponentThemeLiveReloadIT extends ChromeBrowserTest {
                 COMPONENT_STYLE_SHEET);
         parentThemeGeneratedFile = new File(baseDir,
                 String.format(THEME_GENERATED_PATTERN, PARENT_THEME));
+
+        counter++;
+        System.out.println("####### ================================= BEFORE " + counter);
     }
 
     @After
     public void cleanUp() {
+        System.out.println("####### ================================= AFTER " + counter);
         if (currentThemeComponentCSSFile.exists()) {
             // This waits until live reload complete to not affect the second
             // re-run in CI (if any) and to not affect other @Test methods
@@ -104,9 +105,45 @@ public class ComponentThemeLiveReloadIT extends ChromeBrowserTest {
         }
     }
 
+    int counter = 0;
+
+    //@Test
+    public void webpackLiveReload_simulateError() {
+        try {
+            open();
+            getLogEntries(java.util.logging.Level.ALL);
+            //printLogEntries("before clear");
+            //executeScript("console.clear();");
+            //printLogEntries("after clear");
+            // Live reload upon adding a new component styles file
+            String css = counter % 2 == 0 ? "3px": "pippo{"+counter;
+            doActionAndWaitUntilLiveReloadComplete(
+                    () -> createOrUpdateComponentCSSFile(css,
+                            currentThemeComponentCSSFile));
+            checkNoWebpackErrors(PARENT_THEME);
+        } catch (RuntimeException aE) {
+            System.out.println("####### ==================== Error on run " + counter);
+            aE.printStackTrace();
+            throw aE;
+        }
+    }
+
+    private void printLogEntries(String prefix) {
+        getLogEntries(java.util.logging.Level.ALL)
+                .forEach(le -> System.out.printf("####### LE %s [%d] :: %s", prefix, le.getTimestamp(), le.getMessage()));
+    }
+
+
     @Test
     public void webpackLiveReload_newComponentStylesCreatedAndDeleted_stylesUpdatedOnFly() {
         open();
+
+        /*
+         * Access client logs in order to clear them to avoid false positive
+         * on flaky tests, due to checks on entries from a previous run
+         */
+        getLogEntries(java.util.logging.Level.ALL);
+
         Assert.assertFalse(
                 "Border radius for themed component is not expected before "
                         + "applying the styles",
@@ -145,11 +182,13 @@ public class ComponentThemeLiveReloadIT extends ChromeBrowserTest {
         // Try to wait a bit before deleting parent component
         // because sometimes a change in app generated theme is detected
         // together with parent component file removal
+        /*
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
             // do nothing
         }
+         */
 
         // Live reload upon parent theme file deletion
         doActionAndWaitUntilLiveReloadComplete(
@@ -279,22 +318,8 @@ public class ComponentThemeLiveReloadIT extends ChromeBrowserTest {
         }
     }
 
-    private long lastSeenLogEntry = 0L;
-
     private void checkNoWebpackErrors(String theme) {
-        Map<Boolean, List<LogEntry>> logEntryMap = getLogEntries(java.util.logging.Level.ALL).stream()
-                .collect(Collectors.partitioningBy(le -> le.getTimestamp() > lastSeenLogEntry));
-
-        // print old log entries
-        logEntryMap.getOrDefault(false, Collections.emptyList())
-                .forEach(le -> System.out.printf("============== OLD LOG ENTRY: %d -> %s ", le.getTimestamp(), le.getMessage()));
-
-        List<LogEntry> logEntries = logEntryMap.getOrDefault(true, Collections.emptyList());
-        lastSeenLogEntry = logEntries.stream()
-                .mapToLong(LogEntry::getTimestamp)
-                .max().orElse(0);
-        logEntries.forEach(logEntry -> {
-            System.out.printf("============== NEW LOG ENTRIES [%d] Webpack error: %s%n", logEntry.getTimestamp(), logEntry.getMessage());
+        getLogEntries(java.util.logging.Level.ALL).forEach(logEntry -> {
             if (logEntry.getMessage().contains("Module build failed")) {
                 Assert.fail(String.format(
                         "Webpack error detected in the browser console after "
