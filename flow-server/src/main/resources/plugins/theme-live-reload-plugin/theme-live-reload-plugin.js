@@ -61,7 +61,7 @@ class ThemeLiveReloadPlugin {
         logger.debug('Detected changes in the following files ' + changedFilesPaths);
         logger.info('===> MCK ==> Detected changes in the following files ' + changedFilesPaths);
         logger.info('===> MCK ==> compiler.watchFileSystem.watcher.mtimes', compiler.watchFileSystem.watcher.mtimes);
-        logger.info('===> MCK ==> compiler.watchFileSystem.watcher', compiler.watchFileSystem.watcher);
+        //logger.info('===> MCK ==> compiler.watchFileSystem.watcher', compiler.watchFileSystem.watcher);
         changedFilesPaths.forEach((changedFilePath) => {
           const file = `${changedFilePath}`;
           const themeGeneratedFileChangedNow = file.match(this.themeGeneratedFileRegexp);
