@@ -59,14 +59,20 @@ public class ThemeSwitchLiveReloadIT extends ChromeBrowserTest {
 
     @Test
     public void switchThemeName_changeThemeNameAndRecompile_themeIsChangedOnFly() {
-        open();
-        Assert.assertFalse(OTHER_THEME +
-                           " styles are not expected before switching the theme",
-                isOtherThemeUsed());
+        try {
+            open();
+            Assert.assertFalse(OTHER_THEME +
+                            " styles are not expected before switching the theme",
+                    isOtherThemeUsed());
 
-        // Live reload upon theme name switching
-        switchThemeName(APP_THEME, OTHER_THEME);
-        waitUntilOtherTheme();
+            // Live reload upon theme name switching
+            switchThemeName(APP_THEME, OTHER_THEME);
+            waitUntilOtherTheme();
+        } catch (AssertionError | RuntimeException ex) {
+            System.out.println("========================= test error " + ex.getMessage());
+            ex.printStackTrace(System.out);
+            throw ex;
+        }
     }
 
     private void waitUntilOtherTheme() {
