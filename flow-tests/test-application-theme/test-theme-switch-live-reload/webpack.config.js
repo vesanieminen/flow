@@ -11,10 +11,10 @@ const flowDefaults = require('./webpack.generated.js');
 
 module.exports = merge(flowDefaults, {
     stats: {
-        logging: 'verbose'
+        logging: 'info'
     },
     infrastructureLogging: {
-        level: 'verbose'
+        level: 'info'
     }
     /*,
     watchOptions: {

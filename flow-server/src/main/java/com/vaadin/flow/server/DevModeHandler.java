@@ -487,7 +487,7 @@ public final class DevModeHandler implements RequestHandler {
                     // remove babel query string which is confusing
                     .replaceAll("\\?babel-target=[\\w\\d]+", "");
 
-            System.out.println("======================= devserv :: " + line);
+            //////System.out.println("======================= devserv :: " + line);
             // write each line read to logger, but selecting its correct level
             log = line.contains("WARNING") ? warn
                     : line.contains("ERROR") ? error

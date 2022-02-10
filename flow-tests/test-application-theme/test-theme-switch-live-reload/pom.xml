@@ -37,6 +37,24 @@
 
     <build>
         <plugins>
+            <!--
+            Clean node_modules to prevent occasional
+            `EEXIST: file already exists, symlink`
+            errors on pnpm install
+            -->
+            <plugin>
+                <groupId>com.vaadin</groupId>
+                <artifactId>flow-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>auto-clean</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>clean-frontend</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Run flow plugin to build frontend -->
             <plugin>
                 <groupId>com.vaadin</groupId>
@@ -67,6 +85,12 @@
                             </includes>
                         </scanTargetPattern>
                     </scanTargetPatterns>
+                    <systemProperties>
+                        <systemProperty>
+                            <name>org.slf4j.simpleLogger.log.org.eclipse.jetty.util</name>
+                            <value>debug</value>
+                        </systemProperty>
+                    </systemProperties>
                 </configuration>
             </plugin>
             <plugin>
