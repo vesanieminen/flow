@@ -91,7 +91,8 @@ public class ThemeSwitchLiveReloadIT extends ChromeBrowserTest {
     }
 
     private void waitUntilAppTheme() {
-        waitUntilThemeSwap(String.format(ERROR_MESSAGE, OTHER_THEME, APP_THEME,
+        System.out.println("====================== waitUntilAppTheme");
+        waitUntilThemeSwap("cleanUp " + String.format(ERROR_MESSAGE, OTHER_THEME, APP_THEME,
                 ATTEMPTS), () -> !isOtherThemeUsed());
     }
 
@@ -100,6 +101,7 @@ public class ThemeSwitchLiveReloadIT extends ChromeBrowserTest {
             final WebElement html = findElement(By.tagName("html"));
             return BLUE_COLOR.equals(html.getCssValue("background-color"));
         } catch (StaleElementReferenceException e) {
+            e.printStackTrace(System.out);
             return false;
         }
     }
