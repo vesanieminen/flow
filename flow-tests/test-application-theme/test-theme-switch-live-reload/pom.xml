@@ -77,14 +77,6 @@
                 <configuration>
                     <!-- Scan AppShell in 1 second intervals -->
                     <scanIntervalSeconds>1</scanIntervalSeconds>
-                    <scanTargetPatterns>
-                        <scanTargetPattern>
-                            <directory>${project.basedir}/src/main/java</directory>
-                            <includes>
-                                <include>**/ThemeSwitchLiveReloadView.java</include>
-                            </includes>
-                        </scanTargetPattern>
-                    </scanTargetPatterns>
                     <systemProperties>
                         <systemProperty>
                             <name>org.slf4j.simpleLogger.log.org.eclipse.jetty.util</name>
