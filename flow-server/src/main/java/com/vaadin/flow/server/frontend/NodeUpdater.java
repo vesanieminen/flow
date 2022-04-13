@@ -569,6 +569,10 @@ public abstract class NodeUpdater implements FallibleCommand {
         return new File(nodeModulesFolder, VAADIN_JSON);
     }
 
+    public File getNodeModulesFolder() {
+        return nodeModulesFolder;
+    }
+
     JsonObject getVaadinJsonContents() throws IOException {
         File vaadinJsonFile = getVaadinJsonFile();
         if (vaadinJsonFile.exists()) {

@@ -337,22 +337,39 @@ module.exports = {
         ]
       : []),
 
-    function (compiler) {
-      // V14 bootstrapping needs the bundle names
-      compiler.hooks.afterEmit.tapAsync("FlowStatsHelper", (compilation, done) => {
-        let miniStats = {
-          assetsByChunkName: compilation.getStats().toJson().assetsByChunkName
-        };
-        if (!devMode) {
-          fs.writeFile(statsFile, JSON.stringify(miniStats, null, 1),
-            () => done());
-        } else {
-          stats = miniStats;
-          done();
-        }
-      });
-    },
-
+      function (compiler) {
+        // V14 bootstrapping needs the bundle names
+        compiler.hooks.afterEmit.tapAsync('FlowStatsHelper', (compilation, done) => {
+          const st = compilation.getStats().toJson();
+          const modules = st.modules;
+          const nodeModulesFolders = modules
+            .map((module) => module.identifier)
+            .filter((id) => id.includes('node_modules'));
+          const npmModules = nodeModulesFolders
+            .map((id) => id.replace(/.*node_modules./, ''))
+            .map((id) => {
+              const parts = id.split('/');
+              if (id.startsWith('@')) {
+                return parts[0] + '/' + parts[1];
+              } else {
+                return parts[0];
+              }
+            }).sort().filter((value,index,self) => self.indexOf(value) === index);
+  
+          let miniStats = {
+            assetsByChunkName: st.assetsByChunkName,
+            npmModules: npmModules,
+          };
+  
+          if (!devMode) {
+            fs.writeFile(statsFile, JSON.stringify(miniStats, null, 1), () => done());
+          } else {
+            stats = miniStats;
+            done();
+          }
+        });
+      },
+  
     // Includes JS output bundles into "index.html"
     useClientSideIndexFileForBootstrapping &&
       new HtmlWebpackPlugin({
