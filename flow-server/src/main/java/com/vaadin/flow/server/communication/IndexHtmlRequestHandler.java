@@ -150,6 +150,11 @@ public class IndexHtmlRequestHandler extends JavaScriptBootstrapHandler {
         elm.attr(SCRIPT_INITIAL, "");
         elm.appendChild(new DataNode("" + //
                 "window.Vaadin = window.Vaadin || {};" + //
+                "window.Vaadin.VaadinLicenseChecker = {" + //
+                "  maybeCheck: (productInfo) => {" + //
+                "    window.Vaadin.devModeGizmo.checkLicense(productInfo);" + //
+                "  }" + //
+                "};" +
                 "window.Vaadin.ConsoleErrors = window.Vaadin.ConsoleErrors || [];"
                 + //
                 "const browserConsoleError = window.console.error.bind(window.console);"

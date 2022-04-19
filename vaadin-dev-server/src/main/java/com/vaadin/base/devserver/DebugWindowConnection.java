@@ -37,6 +37,8 @@ import org.slf4j.LoggerFactory;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 
+import com.vaadin.pro.licensechecker.Product;
+import com.vaadin.pro.licensechecker.LicenseChecker;
 /**
  * {@link BrowserLiveReload} implementation class.
  * <p>
@@ -164,7 +166,7 @@ public class DebugWindowConnection implements BrowserLiveReload {
     }
 
     @Override
-    public void onMessage(String message) {
+    public void onMessage(AtmosphereResource resource, String message) {
         if (message.isEmpty()) {
             getLogger().debug("Received live reload heartbeat");
             return;
@@ -178,6 +180,28 @@ public class DebugWindowConnection implements BrowserLiveReload {
         } else if ("reportTelemetry".equals(command)) {
             JsonObject data = json.getObject("data");
             DevModeUsageStatistics.handleBrowserData(data);
+        } else if ("checkLicense".equals(command)) {
+            JsonObject data = json.getObject("data");
+            String name = data.getString("name");
+            String version = data.getString("version");
+            Product product = new Product(name, version);
+            boolean ok;
+            String errorMessage = "";
+            try {
+                LicenseChecker.checkLicense(product.getName(), product.getVersion());
+                ok = true;
+            } catch (Exception e) {
+                ok = false;
+                errorMessage = e.getMessage();
+            }
+            if (ok) {
+                send(resource, "license-check-ok", product);
+            } else {
+                ProductAndMessage pm = new ProductAndMessage(product, errorMessage);
+                send(resource, "license-check-failed", pm);
+            }
+        } else {
+            getLogger().info("Unknown command from the browser: " + command);
         }
     }
 
