@@ -5,6 +5,7 @@ export interface Product {
 
 export interface ProductAndMessage {
   message: string;
+  messageHtml?: string;
   product: Product;
 }
 
@@ -30,10 +31,12 @@ const manipulate = (element: Element, productAndMessage: ProductAndMessage) => {
     return;
   }
 
-  const htmlMessage = `${productAndMessage.message} <p>Component: ${productAndMessage.product.name} ${productAndMessage.product.version}</p>`.replace(
-    /https:([^ ]*)/g,
-    "<a href='https:$1'>https:$1</a>"
-  );
+  const htmlMessage = productAndMessage.messageHtml
+    ? productAndMessage.messageHtml
+    : `${productAndMessage.message} <p>Component: ${productAndMessage.product.name} ${productAndMessage.product.version}</p>`.replace(
+        /https:([^ ]*)/g,
+        "<a href='https:$1'>https:$1</a>"
+      );
 
   element.outerHTML = `<no-license style="display: flex; align-items:center;text-align:center;justify-content:center;"><div>${htmlMessage}</div></no-license>`;
 };
@@ -57,16 +60,30 @@ customElements.define = (name, constructor, options) => {
   orgDefine(name, constructor, options);
 };
 
-export const licenseCheckOk = (data: any) => {
+export const licenseCheckOk = (data: Product) => {
   // eslint-disable-next-line no-console
   console.debug('License check ok for ', data);
 };
 
-export const licenseCheckFailed = (data: any) => {
+export const licenseCheckFailed = (data: ProductAndMessage) => {
   const tag = data.product.name;
   missingLicense[tag] = data;
   // eslint-disable-next-line no-console
   console.error('License check failed for ', tag);
+
+  findAll(document, tag).forEach((element) => {
+    setTimeout(() => manipulate(element, missingLicense[tag]), 1000);
+  });
+};
+
+export const licenseCheckNoKey = (data: ProductAndMessage) => {
+  const keyUrl = data.message;
+
+  const tag = data.product.name;
+  data.messageHtml = `No license found. <a target=_blank href="${keyUrl}">Go here to start a trial or retrieve your license.</a>`;
+  missingLicense[tag] = data;
+  // eslint-disable-next-line no-console
+  console.error('No license found when checking ', tag);
 
   findAll(document, tag).forEach((element) => {
     setTimeout(() => manipulate(element, missingLicense[tag]), 1000);

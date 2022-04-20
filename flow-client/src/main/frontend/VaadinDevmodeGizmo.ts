@@ -4,7 +4,7 @@ import { classMap } from 'lit/directives/class-map.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { copy } from './copy-to-clipboard.js';
-import { licenseCheckFailed, licenseCheckOk, Product } from './License';
+import { licenseCheckFailed, licenseCheckNoKey, licenseCheckOk, Product } from './License';
 
 interface ServerInfo {
   vaadinVersion: string;
@@ -103,6 +103,8 @@ export class Connection extends Object {
       licenseCheckOk(json.data);
     } else if (json.command === 'license-check-failed') {
       licenseCheckFailed(json.data);
+    } else if (json.command === 'license-check-nokey') {
+      licenseCheckNoKey(json.data);
     } else {
       this.onMessage(json);
     }

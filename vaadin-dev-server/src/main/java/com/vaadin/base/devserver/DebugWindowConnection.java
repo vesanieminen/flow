@@ -187,8 +187,11 @@ public class DebugWindowConnection implements BrowserLiveReload {
             Product product = new Product(name, version);
             boolean ok;
             String errorMessage = "";
+
             try {
-                LicenseChecker.checkLicense(product.getName(), product.getVersion());
+                LicenseChecker.checkLicense(product.getName(), product.getVersion(), keyUrl -> {
+                    send(resource, "license-check-nokey", new ProductAndMessage(product, keyUrl));
+                });
                 ok = true;
             } catch (Exception e) {
                 ok = false;
