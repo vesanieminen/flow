@@ -25,6 +25,7 @@ const themeFolder = path.resolve(frontendFolder, settings.themeFolder);
 const frontendBundleFolder = path.resolve(__dirname, settings.frontendBundleOutput);
 const addonFrontendFolder = path.resolve(__dirname, settings.addonFrontendFolder);
 const statsFile = path.resolve(frontendBundleFolder, '..', 'config', 'stats.json');
+const themeResourceFolder = path.resolve(__dirname, settings.themeResourceFolder);
 
 const projectStaticAssetsFolders = [
   path.resolve(__dirname, 'src', 'main', 'resources', 'META-INF', 'resources'),
@@ -39,7 +40,7 @@ const themeOptions = {
   devMode: false,
   // The following matches folder 'target/flow-frontend/themes/'
   // (not 'frontend/themes') for theme in JAR that is copied there
-  themeResourceFolder: path.resolve(__dirname, settings.themeResourceFolder),
+  themeResourceFolder: path.resolve(themeResourceFolder, settings.themeFolder),
   themeProjectFolders: themeProjectFolders,
   projectStaticAssetsOutputFolder: path.resolve(__dirname, settings.staticOutput),
   frontendGeneratedFolder: path.resolve(frontendFolder, settings.generatedFolder)
@@ -314,7 +315,7 @@ function updateTheme(contextPath: string) {
   }
 }
 
-function runWatchDog(watchDogPort) {
+function runWatchDog(watchDogPort, watchDogHost) {
   const client = net.Socket();
   client.setEncoding('utf8');
   client.on('error', function (err) {
@@ -324,10 +325,10 @@ function runWatchDog(watchDogPort) {
   });
   client.on('close', function () {
     client.destroy();
-    runWatchDog(watchDogPort);
+    runWatchDog(watchDogPort, watchDogHost);
   });
 
-  client.connect(watchDogPort, 'localhost');
+  client.connect(watchDogPort, watchDogHost || 'localhost');
 }
 
 let spaMiddlewareForceRemoved = false;
@@ -345,17 +346,23 @@ export const vaadinConfig: UserConfigFn = (env) => {
   if (devMode && process.env.watchDogPort) {
     // Open a connection with the Java dev-mode handler in order to finish
     // vite when it exits or crashes.
-    runWatchDog(process.env.watchDogPort);
+    runWatchDog(process.env.watchDogPort, process.env.watchDogHost);
   }
 
   return {
     root: 'frontend',
     base: '',
     resolve: {
-      alias: {
-        themes: themeFolder,
-        Frontend: frontendFolder
-      },
+      alias: [
+        { find: 'themes', replacement: (importee: string) => {
+            if (existsSync(path.resolve(themeResourceFolder, importee))) {
+              return path.resolve(themeResourceFolder, settings.themeFolder);
+            }
+            return themeFolder;
+          }
+        },
+        { find: 'Frontend', replacement: frontendFolder }
+      ],
       preserveSymlinks: true
     },
     define: {

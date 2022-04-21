@@ -88,6 +88,7 @@ let stats;
 // Open a connection with the Java dev-mode handler in order to finish
 // webpack-dev-mode when it exits or crashes.
 const watchDogPort = devMode && process.env.watchDogPort;
+const watchDogHost = (devMode && process.env.watchDogHost) || 'localhost';
 if (watchDogPort) {
   const runWatchDog = () => {
     const client = new require('net').Socket();
@@ -101,8 +102,7 @@ if (watchDogPort) {
       client.destroy();
       runWatchDog();
     });
-
-    client.connect(watchDogPort, 'localhost');
+    client.connect(watchDogPort, watchDogHost);
   };
   runWatchDog();
 }
