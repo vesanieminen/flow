@@ -17,7 +17,22 @@ export const findAll = (element: Element | ShadowRoot | Document, tag: string): 
   return [...lightDom, ...shadowDom];
 };
 
+let licenseCheckListener = false;
+
 const manipulate = (element: Element, productAndMessage: ProductAndMessage) => {
+  if (!licenseCheckListener) {
+    // When a license check has succeeded, refresh so that all elements are properly shown again
+    window.addEventListener(
+      'message',
+      (e) => {
+        if (e.data === 'validate-license') {
+          window.location.reload();
+        }
+      },
+      false
+    );
+    licenseCheckListener = true;
+  }
   const overlay = (element as any)._overlayElement;
   if (overlay) {
     if (overlay.shadowRoot) {
@@ -80,7 +95,7 @@ export const licenseCheckNoKey = (data: ProductAndMessage) => {
   const keyUrl = data.message;
 
   const tag = data.product.name;
-  data.messageHtml = `No license found. <a target=_blank href="${keyUrl}">Go here to start a trial or retrieve your license.</a>`;
+  data.messageHtml = `No license found. <a target=_blank onclick="javascript:window.open(this.href);return false;" href="${keyUrl}">Go here to start a trial or retrieve your license.</a>`;
   missingLicense[tag] = data;
   // eslint-disable-next-line no-console
   console.error('No license found when checking ', tag);
