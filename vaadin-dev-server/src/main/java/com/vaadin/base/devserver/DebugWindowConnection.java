@@ -39,6 +39,7 @@ import elemental.json.JsonObject;
 
 import com.vaadin.pro.licensechecker.Product;
 import com.vaadin.pro.licensechecker.LicenseChecker;
+
 /**
  * {@link BrowserLiveReload} implementation class.
  * <p>
@@ -189,9 +190,11 @@ public class DebugWindowConnection implements BrowserLiveReload {
             String errorMessage = "";
 
             try {
-                LicenseChecker.checkLicense(product.getName(), product.getVersion(), keyUrl -> {
-                    send(resource, "license-check-nokey", new ProductAndMessage(product, keyUrl));
-                });
+                LicenseChecker.checkLicense(product.getName(),
+                        product.getVersion(), keyUrl -> {
+                            send(resource, "license-check-nokey",
+                                    new ProductAndMessage(product, keyUrl));
+                        });
                 ok = true;
             } catch (Exception e) {
                 ok = false;
@@ -200,7 +203,8 @@ public class DebugWindowConnection implements BrowserLiveReload {
             if (ok) {
                 send(resource, "license-check-ok", product);
             } else {
-                ProductAndMessage pm = new ProductAndMessage(product, errorMessage);
+                ProductAndMessage pm = new ProductAndMessage(product,
+                        errorMessage);
                 send(resource, "license-check-failed", pm);
             }
         } else {

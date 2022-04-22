@@ -154,8 +154,8 @@ public class IndexHtmlRequestHandler extends JavaScriptBootstrapHandler {
                 "  maybeCheck: (productInfo) => {" + //
                 "    window.Vaadin.devModeGizmo.checkLicense(productInfo);" + //
                 "  }" + //
-                "};" +
-                "window.Vaadin.ConsoleErrors = window.Vaadin.ConsoleErrors || [];"
+                "};"
+                + "window.Vaadin.ConsoleErrors = window.Vaadin.ConsoleErrors || [];"
                 + //
                 "const browserConsoleError = window.console.error.bind(window.console);"
                 + //
