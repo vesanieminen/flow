@@ -514,7 +514,7 @@ public class TaskUpdateImports extends NodeUpdater {
             return true;
         }
 
-        Product product = CdvlProducts.getProductIfCDVL(getNodeModulesFolder(),
+        Product product = CvdlProducts.getProductIfCvdl(getNodeModulesFolder(),
                 npmModule);
         if (product != null) {
             if (LocalProKey.get() == null) {

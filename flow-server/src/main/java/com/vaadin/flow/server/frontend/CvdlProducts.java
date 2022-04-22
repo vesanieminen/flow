@@ -11,23 +11,27 @@ import org.apache.commons.io.FileUtils;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 
-public class CdvlProducts {
+public class CvdlProducts {
 
-    public static Product getProductIfCDVL(File nodeModules, String npmModule) {
+    private static final String CVDL_PACKAGE_KEY = "cvdlName";
+
+    public static Product getProductIfCvdl(File nodeModules, String npmModule) {
         File packageJsonFile = new File(new File(nodeModules, npmModule),
                 "package.json");
 
         try {
             JsonObject packageJson = Json.parse(FileUtils
                     .readFileToString(packageJsonFile, StandardCharsets.UTF_8));
-            if (packageJson.hasKey("cvdlName")) {
-                return new Product(packageJson.getString("cvdlName"),
+            if (packageJson.hasKey(CVDL_PACKAGE_KEY)) {
+                return new Product(packageJson.getString(CVDL_PACKAGE_KEY),
                         packageJson.getString("version"));
             } else if (packageJson.hasKey("license")) {
+                String packageName = packageJson.getString("name");
                 String license = packageJson.getString("license");
-                if (license.startsWith("https://raw.githubusercontent.com")) {
+                if (packageName.startsWith("@vaadin/") && license
+                        .startsWith("https://raw.githubusercontent.com")) {
                     // Free components have "Apache-2.0"
-                    String cvdlName = packageJson.getString("name");
+                    String cvdlName = packageName;
                     cvdlName = cvdlName.replace("@", "");
                     cvdlName = cvdlName.replace("/", "-");
                     cvdlName = cvdlName.replace("charts", "chart");

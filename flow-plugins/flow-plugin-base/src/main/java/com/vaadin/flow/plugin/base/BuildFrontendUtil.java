@@ -34,12 +34,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
+import com.fasterxml.jackson.annotation.JsonFormat.Feature;
 import com.vaadin.experimental.FeatureFlags;
 import com.vaadin.flow.di.Lookup;
 import com.vaadin.flow.server.Constants;
 import com.vaadin.flow.server.ExecutionFailedException;
 import com.vaadin.flow.server.InitParameters;
-import com.vaadin.flow.server.frontend.CdvlProducts;
+import com.vaadin.flow.server.frontend.CvdlProducts;
 import com.vaadin.flow.server.frontend.FrontendTools;
 import com.vaadin.flow.server.frontend.FrontendToolsSettings;
 import com.vaadin.flow.server.frontend.FrontendUtils;
@@ -371,13 +372,7 @@ public class BuildFrontendUtil {
      */
     public static void runFrontendBuild(PluginAdapterBase adapter)
             throws TimeoutException, URISyntaxException {
-        ClassFinder classFinder = adapter.getClassFinder();
-
-        Lookup lookup = adapter.createLookup(classFinder);
-
-        final FeatureFlags featureFlags = new FeatureFlags(lookup);
-        featureFlags.setPropertiesLocation(adapter.javaResourceFolder());
-
+        FeatureFlags featureFlags = getFeatureFlags(adapter);
         FrontendToolsSettings settings = getFrontendToolsSettings(adapter);
         FrontendTools tools = new FrontendTools(settings);
         tools.validateNodeAndNpmVersion();
@@ -479,9 +474,16 @@ public class BuildFrontendUtil {
         }
 
         // Check License
+        validateLicenses(adapter);
+    }
 
+    private static void validateLicenses(PluginAdapterBase adapter) {
         File nodeModulesFolder = new File(adapter.npmFolder(),
                 FrontendUtils.NODE_MODULES);
+        FeatureFlags featureFlags = getFeatureFlags(adapter);
+        if (!featureFlags.isEnabled(FeatureFlags.NEW_LICENSE_CHECKER)) {
+            return;
+        }
 
         File outputFolder = adapter.webpackOutputDirectory();
         File statsFile = new File(adapter.servletResourceOutputDirectory(),
@@ -511,6 +513,7 @@ public class BuildFrontendUtil {
                 throw e;
             }
         }
+
     }
 
     private static Logger getLogger() {
@@ -525,8 +528,8 @@ public class BuildFrontendUtil {
             JsonArray npmModules = Json.parse(contents).getArray("npmModules");
             for (int i = 0; i < npmModules.length(); i++) {
                 String npmModule = npmModules.getString(i);
-                Product product = CdvlProducts
-                        .getProductIfCDVL(nodeModulesFolder, npmModule);
+                Product product = CvdlProducts
+                        .getProductIfCvdl(nodeModulesFolder, npmModule);
                 if (product != null) {
                     components.add(product);
                 }
@@ -536,6 +539,16 @@ public class BuildFrontendUtil {
             throw new RuntimeException("Error reading file " + statsFile, e);
         }
 
+    }
+
+    private static FeatureFlags getFeatureFlags(PluginAdapterBase adapter) {
+        ClassFinder classFinder = adapter.getClassFinder();
+
+        Lookup lookup = adapter.createLookup(classFinder);
+
+        final FeatureFlags featureFlags = new FeatureFlags(lookup);
+        featureFlags.setPropertiesLocation(adapter.javaResourceFolder());
+        return featureFlags;
     }
 
     /**
